@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Member Information Card -->
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h4 class="card-title">Member Information</h4>
+                    <div class="mb-3">
+                        <strong>Name:</strong> {{ member.user.get_full_name }}
+                    </div>
+                    <div class="mb-3">
+                        <strong>Family:</strong> {{ member.family|default:"Not assigned" }}
+                    </div>
+                    <div class="mb-3">
+                        <strong>Cohort:</strong> {{ member.cohort|default:"Not assigned" }}
+                    </div>
+                    <div class="mb-3">
+                        <strong>Phone:</strong> {{ member.phone_number }}
+                    </div>
+                    <div class="mb-3">
+                        <strong>AMO Member:</strong> {% if member.is_amo_member %}Yes{% else %}No{% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <strong>ALO Member:</strong> {% if member.is_alo_member %}Yes{% else %}No{% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Actions Card -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h4 class="card-title">Make a Payment</h4>
+                    <form method="post" action="{% url 'initiate_payment' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="payment_type" class="form-label">Payment Type</label>
+                            <select class="form-select" id="payment_type" name="payment_type" required>
+                                <option value="">Select payment type</option>
+                                <option value="TITHE">Tithe</option>
+                                <option value="OFFERING">Offering</option>
+                                <option value="MISSION">Mission</option>
+                                <option value="LUNCH">Lunch Money</option>
+                                <option value="CONTRIBUTION">Contribution</option>
+                                <option value="FUNDRAISING">Fundraising</option>
+                            </select>
+                        </div>
+                        <div class="mb-3" id="mission_type_container" style="display: none;">
+                            <label for="mission_payment_type" class="form-label">Mission Payment Type</label>
+                            <select class="form-select" id="mission_payment_type" name="mission_payment_type">
+                                <option value="WEEKLY">Weekly (20 KES)</option>
+                                <option value="MONTHLY">Monthly (50 KES)</option>
+                                <option value="OTHER">Other Amount</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="amount" class="form-label">Amount (KES)</label>
+                            <input type="number" class="form-control" id="amount" name="amount" required min="1">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Pay with M-Pesa</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Recent Payments -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="card-title mb-0">Recent Payments</h4>
+                        <a href="{% url 'payment_history' %}" class="btn btn-outline-primary btn-sm">View All</a>
+                    </div>
+                    {% if payments %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in payments|slice:":5" %}
+                                <tr>
+                                    <td>{{ payment.payment_date|date:"M d, Y" }}</td>
+                                    <td>{{ payment.payment_type }}</td>
+                                    <td>KES {{ payment.amount }}</td>
+                                    <td>
+                                        <span class="badge {% if payment.status == 'COMPLETED' %}bg-success{% else %}bg-warning{% endif %}">
+                                            {{ payment.status }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No payments found.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('payment_type').addEventListener('change', function() {
+    var missionContainer = document.getElementById('mission_type_container');
+    var amountInput = document.getElementById('amount');
+    
+    if (this.value === 'MISSION') {
+        missionContainer.style.display = 'block';
+        // Set default amount based on mission type
+        document.getElementById('mission_payment_type').addEventListener('change', function() {
+            if (this.value === 'WEEKLY') {
+                amountInput.value = '20';
+            } else if (this.value === 'MONTHLY') {
+                amountInput.value = '50';
+            } else {
+                amountInput.value = '';
+            }
+        });
+    } else {
+        missionContainer.style.display = 'none';
+        amountInput.value = '';
+    }
+});
+</script>
+{% endblock %} 
