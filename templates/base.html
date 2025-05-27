@@ -13,6 +13,19 @@
         .main-content {
             min-height: calc(100vh - 160px);
         }
+        .logout-form {
+            display: inline;
+        }
+        .logout-btn {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.55);
+            padding: 8px;
+            cursor: pointer;
+        }
+        .logout-btn:hover {
+            color: rgba(255,255,255,0.75);
+        }
     </style>
 </head>
 <body>
@@ -41,7 +54,10 @@
                         <span class="nav-link">Welcome, {{ user.get_full_name|default:user.username }}</span>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                        <form method="post" action="{% url 'logout' %}" class="logout-form">
+                            {% csrf_token %}
+                            <button type="submit" class="logout-btn nav-link">Logout</button>
+                        </form>
                     </li>
                     {% else %}
                     <li class="nav-item">

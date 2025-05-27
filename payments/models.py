@@ -55,7 +55,8 @@ class Payment(models.Model):
         ('50_BOB', '50 Bob Challenge'),
         ('COHORT', 'Cohort Payment'),
         ('FAMILY', 'Family Payment'),
-        ('MINI_CONCERT', 'Mini Fundraiser Concert'),
+        ('MINI_FUNDRAISER', 'Mini Fundraiser '),
+        ('MUSIC_CONCERT', 'music concert'),
         ('MEGA_FUNDRAISER', 'Mega Fundraiser'),
     ]
 

@@ -18,14 +18,44 @@ from datetime import datetime
 from django.core.exceptions import ImproperlyConfigured
 
 class MemberRegistrationForm(UserCreationForm):
-    phone_number = forms.CharField(max_length=15, required=True, help_text='Enter your M-Pesa phone number')
-    family = forms.ModelChoiceField(queryset=Family.objects.all(), required=True, help_text='Select your family')
-    cohort = forms.ModelChoiceField(queryset=Cohort.objects.all(), required=True, help_text='Select your cohort')
-    is_amo = forms.BooleanField(required=False, label='Are you an AMO?')
-    is_alo = forms.BooleanField(required=False, label='Are you an ALO?')
+    phone_number = forms.CharField(
+        max_length=15,
+        required=True,
+        help_text='Enter your M-Pesa phone number',
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    family = forms.ModelChoiceField(
+        queryset=Family.objects.all(),
+        required=True,
+        help_text='Select your family',
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    cohort = forms.ModelChoiceField(
+        queryset=Cohort.objects.all(),
+        required=True,
+        help_text='Select your cohort',
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    is_amo = forms.BooleanField(
+        required=False,
+        label='Are you an AMO?',
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+    is_alo = forms.BooleanField(
+        required=False,
+        label='Are you an ALO?',
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
     
     class Meta(UserCreationForm.Meta):
         fields = UserCreationForm.Meta.fields + ('email', 'first_name', 'last_name')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Add Bootstrap classes to all fields
+        for field in self.fields.values():
+            if isinstance(field.widget, (forms.TextInput, forms.EmailInput, forms.PasswordInput)):
+                field.widget.attrs['class'] = 'form-control'
 
 class ProfileUpdateForm(forms.ModelForm):
     first_name = forms.CharField(max_length=30, required=True)
